@@ -10,23 +10,21 @@ import SwiftData
 
 @main
 struct vyyer_testApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+    
+    private var rootCoordinator: RootCoordinator = .init(foundation: .init())
+    
     var body: some Scene {
+        let foundation = rootCoordinator.foundation
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                if rootCoordinator.isAuthenticated {
+                    ScansView(viewModel: .init(foundation: foundation))
+                        .environmentObject(rootCoordinator)
+                } else {
+                    LoginView(viewModel: .init(foundation: foundation))
+                        .environmentObject(rootCoordinator)
+                }
+            }
         }
-        .modelContainer(sharedModelContainer)
     }
 }
